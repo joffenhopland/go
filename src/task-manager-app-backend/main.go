@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -47,6 +48,7 @@ func getTasks(w http.ResponseWriter, r *http.Request) {
 }
 func getTask(w http.ResponseWriter, r *http.Request) {
 	taskId := mux.Vars(r)
+	fmt.Println(taskId["id"])
 	flag := false
 	for i := 0; i < len(tasks); i++ {
 		if taskId["id"] == tasks[i].ID {
@@ -64,6 +66,8 @@ func createTask(w http.ResponseWriter, r *http.Request) {
 	var task Tasks
 	_ = json.NewDecoder(r.Body).Decode(&task)
 	task.ID = strconv.Itoa(rand.Intn(1000))
+	currentTime := time.Now().Format("01-02-2006")
+	task.Date = currentTime
 	tasks = append(tasks, task)
 	json.NewEncoder(w).Encode(task)
 
