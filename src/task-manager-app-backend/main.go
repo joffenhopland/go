@@ -47,11 +47,11 @@ func getTasks(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(tasks)
 }
 func getTask(w http.ResponseWriter, r *http.Request) {
-	taskId := mux.Vars(r)
-	fmt.Println(taskId["id"])
+	params := mux.Vars(r)
+	fmt.Println(params["id"])
 	flag := false
 	for i := 0; i < len(tasks); i++ {
-		if taskId["id"] == tasks[i].ID {
+		if params["id"] == tasks[i].ID {
 			json.NewEncoder(w).Encode(tasks[i])
 			flag = true
 			break
@@ -76,7 +76,31 @@ func deleteTask(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("I am home page")
 }
 func updateTask(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("I am home page")
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	fmt.Println(params["id"])
+	flag := false
+	for index, item := range tasks {
+		if item.ID == params["id"] {
+			fmt.Println("The id is", item.ID)
+			tasks = append(tasks[:index], tasks[index+1:]...)
+			var task Tasks
+			_ = json.NewDecoder(r.Body).Decode(&task)
+			task.ID = params["id"]
+			currentTime := time.Now().Format("01-02-2006")
+			task.Date = currentTime
+			tasks = append(tasks, task)
+			flag = true
+			json.NewEncoder(w).Encode(task)
+			return
+
+		}
+	}
+
+	if flag == false {
+		json.NewEncoder(w).Encode(map[string]string{"status": "eror"})
+	}
+
 }
 
 func handleRoutes() {
